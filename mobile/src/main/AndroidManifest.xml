@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="org.pondar.watchface">
 
+    <!-- the following are needed for the watchfaces - because it
+      runs in the background -->
     <uses-permission
         android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
     <uses-permission

@@ -1,20 +1,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="org.pondar.watchface">
+
+    <!-- must be run on a watch -->
     <uses-feature android:name="android.hardware.type.watch"/>
+    <!-- getting permissions -->
     <uses-permission
         android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
     <uses-permission
         android:name="android.permission.WAKE_LOCK" />
+
     <application android:allowBackup="true"
                  android:label="@string/app_name"
                  android:icon="@mipmap/ic_launcher"
                  android:theme="@android:style/Theme.DeviceDefault">
+
+        <!-- specifying our background service -->
         <service
             android:name=".WatchFaceService"
             android:label="@string/analog_name"
             android:allowEmbedded="true"
             android:taskAffinity=""
             android:permission="android.permission.BIND_WALLPAPER" >
+            <!-- specifying our images to be used -->
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />

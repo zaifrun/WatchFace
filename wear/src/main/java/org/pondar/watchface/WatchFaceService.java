@@ -1,7 +1,5 @@
 package org.pondar.watchface;
 
-import java.util.TimeZone;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,13 +20,15 @@ import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
 import android.view.SurfaceHolder;
 
+import java.util.TimeZone;
+
+//need to extend the CanvasWatch Service
+//a part of the code in this watch is from Google examples
 public class WatchFaceService extends CanvasWatchFaceService {
 	
 	Context context;
 	WatchFaceService service;
 	public boolean mBurnInProtection;
-	
-	
 
     @Override
     public Engine onCreateEngine() {
@@ -66,9 +66,10 @@ public class WatchFaceService extends CanvasWatchFaceService {
     	    }
     	}
 
-        //should be show the watch?
+        //should we show the watch?
     	private boolean shouldTimerBeRunning() {
-    	    return isVisible() && !isInAmbientMode();
+
+            return isVisible() && !isInAmbientMode(); //in ambient mode we dont show
     	}
         
 
@@ -112,7 +113,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
             /* create graphic styles */
             mHourPaint = new Paint();
-            mHourPaint.setARGB(255, 200, 200, 200); //dark gray color
+            mHourPaint.setARGB(255, 200, 200, 200); //dark white/gray color
             mHourPaint.setStrokeWidth(5.0f); //thick for hours
             mHourPaint.setAntiAlias(true);
             mHourPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -124,12 +125,13 @@ public class WatchFaceService extends CanvasWatchFaceService {
             mMinutePaint.setStrokeCap(Paint.Cap.ROUND);
             
             mSecondPaint = new Paint();
-            mSecondPaint.setARGB(255, 200, 20, 20);
+            mSecondPaint.setARGB(255, 200, 20, 20); //red color for the seconds
             mSecondPaint.setStrokeWidth(2.0f); //thin for seconds
             mSecondPaint.setAntiAlias(true);
             mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
             
-            
+
+            //What style is the watch face.
             setWatchFaceStyle(new WatchFaceStyle.Builder(service)
             .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
             .setBackgroundVisibility(WatchFaceStyle
@@ -155,7 +157,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
         public void onTimeTick() {
             super.onTimeTick();
             /* the time changed */
-            invalidate();
+            invalidate(); //so redraw everything
         }
 
         @Override
@@ -175,7 +177,6 @@ public class WatchFaceService extends CanvasWatchFaceService {
         //Here we do all the drawings.
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            /* draw your watch face */
         	 // Update the time
             mTime.setToNow();
 
@@ -189,7 +190,10 @@ public class WatchFaceService extends CanvasWatchFaceService {
                 mBackgroundScaledBitmap = Bitmap.createScaledBitmap(mBackgroundBitmap,
                                                  width, height, true /* filter */);
             }
+            //background color black
             canvas.drawColor(Color.BLACK);
+            //The bitmap may be transparent, so the rest is filled with the
+            //background color
             canvas.drawBitmap(mBackgroundScaledBitmap, 0, 0, null);
 
             // Find the center. Ignore the window insets so that, on round watches
@@ -208,7 +212,8 @@ public class WatchFaceService extends CanvasWatchFaceService {
             float minLength = centerX - 40;
             float hrLength = centerX - 80;
 
-            // Only draw the second hand in interactive mode.
+            // Only draw the seconds hand in interactive mode.
+            //not in ambient (power saving mode)
             if (!isInAmbientMode()) {
                 float secX = (float) Math.sin(secRot) * secLength;
                 float secY = (float) -Math.cos(secRot) * secLength;
@@ -219,11 +224,14 @@ public class WatchFaceService extends CanvasWatchFaceService {
             // Draw the minute and hour hands.
             float minX = (float) Math.sin(minRot) * minLength;
             float minY = (float) -Math.cos(minRot) * minLength;
-            
+
+            // draw the minutes
             canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY,
                             mMinutePaint);
             float hrX = (float) Math.sin(hrRot) * hrLength;
             float hrY = (float) -Math.cos(hrRot) * hrLength;
+
+            //draw the hours
             canvas.drawLine(centerX, centerY, centerX + hrX, centerY + hrY,
                             mHourPaint);
         }
@@ -234,10 +242,12 @@ public class WatchFaceService extends CanvasWatchFaceService {
                 return;
             }
             mRegisteredTimeZoneReceiver = true;
+            //in case we step on and then off a plane in a different time zone
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             service.registerReceiver(mTimeZoneReceiver, filter);
         }
 
+        //disconnect the time zone receiver.
         private void unregisterReceiver() {
             if (!mRegisteredTimeZoneReceiver) {
                 return;
@@ -252,7 +262,6 @@ public class WatchFaceService extends CanvasWatchFaceService {
             /* the watch face became visible or invisible */
             if (visible) {
                 registerReceiver();
-
                 // Update time zone in case it changed while we weren't visible.
                 mTime.clear(TimeZone.getDefault().getID());
                 mTime.setToNow();
